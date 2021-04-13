@@ -1,0 +1,53 @@
+/*	Daniel Gallagher - G00360986
+ * 	Artificial intelligence project
+ */
+
+FUNCTION_BLOCK getGameInfo
+
+	VAR_INPUT
+		enemyHealth : REAL;
+		playerHealth : REAL;
+	END_VAR
+	
+	VAR_OUTPUT
+		gameOver : REAL;
+	END_VAR
+	
+	//Fuzzy Graphs
+	FUZZIFY enemyHealth
+			TERM low := (0, 1) (5, 1) (9, 0);
+			TERM mid := trian 6 10 14;
+			TERM high := (11, 0) (15, 1) (20, 1);
+	END_FUZZIFY
+	
+	FUZZIFY playerHealth
+			TERM low := (0, 1) (5, 1) (9, 0);
+			TERM mid := trian 6 10 14;
+			TERM high := (11, 0) (15, 1) (20, 1);
+	END_FUZZIFY
+
+	DEFUZZIFY gameOver
+ 		TERM unlikely := (0, 1) (15, 1) (35, 0);
+ 		TERM plausible := trian 25.0 50.0 75.0;
+ 		TERM likely := (65, 0) (90, 1) (101, 1);
+ 		//Right most max
+ 		METHOD : RM;
+ 		DEFAULT := 0;
+	END_DEFUZZIFY
+
+	RULEBLOCK No1
+	 	AND : MIN;
+	 	ACT : MIN;
+	 	ACCU : MAX;
+	 	
+	 	//Rules for fuzzy logic
+	 	RULE 1 : IF enemyHealth IS high AND playerHealth IS low THEN gameOver IS likely;
+	 	RULE 2 : IF enemyHealth IS low AND playerHealth IS high THEN gameOver IS unlikely;
+	 	RULE 3 : IF enemyHealth IS mid AND playerHealth IS mid THEN gameOver IS plausible;
+	 	RULE 4 : IF enemyHealth IS mid AND playerHealth IS low THEN gameOver IS likely;
+	 	RULE 5 : IF enemyHealth IS low AND playerHealth IS mid THEN gameOver IS unlikely;
+	 	RULE 6 : IF enemyHealth IS high AND playerHealth IS high THEN gameOver IS unlikely;
+	 	RULE 7 : IF enemyHealth IS low AND playerHealth IS low THEN gameOver IS likely;
+	END_RULEBLOCK
+	
+END_FUNCTION_BLOCK
